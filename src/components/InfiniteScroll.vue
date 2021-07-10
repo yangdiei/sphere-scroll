@@ -1,13 +1,27 @@
 <template>
-    <div class="scroll-container" :style="{ height: scrollHeight + 'px', width: scrollWidth + 'px' }" @scroll="onScroll" ref="scrollContainer">
+    <div
+        class="scroll-container"
+        :style="{ height: scrollHeight + 'px', width: scrollWidth + 'px' }"
+        @scroll="onScroll"
+        ref="scrollContainer"
+    >
         <div class="top-space" :style="{ height: topSpaceHeight + 'px' }"></div>
-        <div ref="item" class="item" v-for="(item, index) in showList" :key="index" :style="{
-                            height: itemHeight + 'px',
-                            width: itemWidth + 'px',
-                        }">
+        <div
+            ref="item"
+            class="item"
+            v-for="(item, index) in showList"
+            :key="index"
+            :style="{
+                height: itemHeight + 'px',
+                width: itemWidth + 'px',
+            }"
+        >
             <slot name="item" v-bind:item="item"> </slot>
         </div>
-        <div class="bottom-space" :style="{ height: bottomSpaceHeight + 'px' }"></div>
+        <div
+            class="bottom-space"
+            :style="{ height: bottomSpaceHeight + 'px' }"
+        ></div>
     </div>
 </template>
 
@@ -40,7 +54,7 @@ export default {
             default: () => [],
         },
     },
-    data: function() {
+    data: function () {
         return {
             showList: [],
             startIndex: 0,
@@ -49,13 +63,13 @@ export default {
             tag: {},
         };
     },
-    created: function() {
+    created: function () {
         this.showList = this.dataList.slice(this.startIndex, this.itemNum);
         this.bottomSpaceHeight = this.totalHeight - this.contentHeight;
     },
-    mounted: function() {
+    mounted: function () {
         this.tag = this.$refs.item[0];
-        console.log(this.tag)
+        console.log(this.tag);
     },
     watch: {
         // startIndex(val) {
@@ -88,18 +102,42 @@ export default {
                     this.startIndex = index;
                     this.topSpaceHeight = this.startIndex * this.itemHeight;
                     let layout = [];
-                    layout.push(this.renderExtraTag("top-space", this.topSpaceHeight, ''));
-                    for (let index = this.startIndex; index < Math.min(this.startIndex + this.itemNum, this.dataList.length); index++) {
+                    layout.push(
+                        this.renderExtraTag(
+                            "top-space",
+                            this.topSpaceHeight,
+                            ""
+                        )
+                    );
+                    for (
+                        let index = this.startIndex;
+                        index <
+                        Math.min(
+                            this.startIndex + this.itemNum,
+                            this.dataList.length
+                        );
+                        index++
+                    ) {
                         const element = this.dataList[index];
-                        let  item = this.renderExtraTag("item", this.itemHeight, element.name);
-                        layout.push(item)
+                        let item = this.renderExtraTag(
+                            "item",
+                            this.itemHeight,
+                            element.name
+                        );
+                        layout.push(item);
                     }
                     this.bottomSpaceHeight =
                         this.totalHeight -
                         this.showList.length * this.itemHeight -
                         this.topSpaceHeight;
-                    layout.push(this.renderExtraTag("bottom-space", this.bottomSpaceHeight, ''));
-                    this.$refs.scrollContainer.innerHTML = layout.join('');
+                    layout.push(
+                        this.renderExtraTag(
+                            "bottom-space",
+                            this.bottomSpaceHeight,
+                            ""
+                        )
+                    );
+                    this.$refs.scrollContainer.innerHTML = layout.join("");
                     // console.log(num, index);
                     e.target.scrollTop = scrollTop;
 
@@ -114,18 +152,17 @@ export default {
                     // );
                     // this.startIndex = index;
                     // e.target.scrollTop = scrollTop;
-
                 }
             }
         },
         renderExtraTag(class_name, height, value) {
-            var tag = document.createElement('div');
+            var tag = document.createElement("div");
             tag.className = class_name;
-            if(class_name == 'item') {
+            if (class_name == "item") {
                 tag = this.tag;
                 tag.getElementsByClassName("value")[0].innerText = value;
             }
-            height && (tag.style.height = height + 'px');
+            height && (tag.style.height = height + "px");
             return tag.outerHTML;
         },
     },
