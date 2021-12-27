@@ -6,7 +6,7 @@
         </h1>
         <sphere-scroll :dataList="dataList">
             <template v-slot:item="{ item }">
-                <div class="item">
+                <div class="ListItem">
                     <img
                         src="./assets/logo.png"
                         style="height: 10px; width: 10px"
@@ -34,7 +34,7 @@ export default {
         };
     },
     created: function () {
-        for (let index = 0; index < 100; index++) {
+        for (let index = 0; index < 50; index++) {
             this.dataList.push({ name: index });
         }
     },
@@ -42,13 +42,20 @@ export default {
 </script>
 
 <style>
+html {
+    width: 100vw;
+}
+body {
+    width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+}
 #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    margin-top: 60px;
 }
 
 .gradient-text[data-v-fb6d3afe] {
@@ -78,7 +85,7 @@ export default {
         background-position: 0 50%;
     }
 }
-.item {
-    background-color: springgreen;
+.ListItem {
+    font-size: 24px;
 }
 </style>
