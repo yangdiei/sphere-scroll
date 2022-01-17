@@ -1,24 +1,25 @@
 <template>
-    <div style="position: relative; overflow: hidden" :style="{height: (2 * viewHeight) + 'px', width: scrollWidth + 'px',}">
-        <div class="middle-line"></div>
+    <div style="position: relative; overflow: hidden;" :style="{height: `${2 * viewHeight * (1 - 1 / Math.PI)}px`,width: scrollWidth + 'px',}">
+    <!-- <div style="position: relative; overflow: hidden;" :style="{height:  (viewHeight ) + 'px',width: scrollWidth + 'px',}"> -->
+        <div class="yd-middle-line" 
+            :style="{
+                height: itemHeight + 'px',
+                top: `calc(50% - ${0.5 * itemHeight}px)`
+        }"></div>
         <div
-            class="scroll-container"
+            class="yd-scroll-container"
             :style="{ 
                 width: '100%',
                 height: scrollHeight + 'px',
-                transform: `translate(0, -${scrollHeight / 2 - viewHeight}px)`
+                transform: `translate(0, -${(scrollHeight) / 2 - viewHeight * (1 - 1 / Math.PI)}px)`
             }"
             @touchstart="touchStart"
             @touchend="touchEnd"
             ref="scrollContainer"
         >
             <div
-                class="top-space"
-                :style="{ height: topSpaceHeight + 'px' }"
-            ></div>
-            <div
                 ref="item"
-                class="item"
+                class="yd-item"
                 v-for="(item, index) in dataList"
                 :key="index"
                 :style="{
@@ -31,10 +32,6 @@
             >
                 <slot name="item" v-bind:item="item"> </slot>
             </div>
-            <div
-                class="bottom-space"
-                :style="{ height: bottomSpaceHeight + 'px' }"
-            ></div>
         </div>
     </div>
 </template>
@@ -45,11 +42,6 @@ export default {
     data: function () {
         return {
             lineSp: 0, //线速度
-            itemNum: 11, //可视区域item的数量，为奇数
-            itemHeight: 40, //item高度
-            itemWidth: 300,
-            topSpaceHeight: 0,
-            bottomSpaceHeight: 0,
             itemDatas: [],
             touchData: {
                 last: {
@@ -63,15 +55,28 @@ export default {
             },
             scrollTop: 0,
             acceleration: 10, //惯性滑动的加速度
-            requestAnimationId: 0
+            requestAnimationId: 0,
+            isInner: false,
         };
     },
     props: {
         scrollHeight: {
             type: [String, Number],
-            default: 440,
+            default: 840,
         },
+        // viewHeight: {
+        //     type: [String, Number],
+        //     default: 600,
+        // },
         scrollWidth: {
+            type: [String, Number],
+            default: 300,
+        },
+        itemHeight: {
+            type: [String, Number],
+            default: 40,
+        },
+        itemWidth: {
             type: [String, Number],
             default: 300,
         },
@@ -84,19 +89,36 @@ export default {
         viewHeight() {
             return (this.scrollHeight / Math.PI).toFixed(3);
         },
+        // scrollHeight() {
+        //     return (this.viewHeight * Math.PI).toFixed(3);
+        // },
+        itemNum() {
+            let num = Math.floor(this.scrollHeight / this.itemHeight);
+            num = num % 2 == 1 ? num : num + 1;
+            console.log(num)
+            return num;
+        },
         velocity() {
             let velocity;
             velocity = (this.touchData.current.pos - this.touchData.last.pos) / this.itemHeight * 1000 / (this.touchData.current.time - this.touchData.last.time).toFixed(3)
-            return velocity;
+            return velocity * 1.5;
         },
         middleIndex() {
-            return Math.floor((this.scrollHeight / 2 + this.scrollTop) / this.itemHeight);
+            let index = Math.floor((this.scrollHeight / 2 + this.scrollTop) / this.itemHeight);
+            index = Math.min(this.dataList.length, index);
+            index = Math.max(0, index); 
+            return index;
         },
         minScorllTop() {
             return -(this.scrollHeight - this.itemHeight) / 2;
         },
         maxScrollTop() {
             return (this.dataList.length * this.itemHeight -(this.scrollHeight + this.itemHeight) / 2);
+        },
+    },
+    watch: {
+        middleIndex() {
+            this.$emit('selectChange', this.middleIndex);
         }
     },
     created: function () {
@@ -109,38 +131,58 @@ export default {
         this.setRotate(0);
     },
 	mounted: function () {
-		const element = document.getElementsByClassName('scroll-container')[0];
-		element.addEventListener('touchmove', this.touchMove)
+        document.addEventListener('mousedown', this.touchStart);
+        document.addEventListener('mouseup', this.touchEnd);
 	},
     methods: {
         touchStart(e) {
-            this.touchData.current.pos = e.touches[0].clientY || e.clientY;
-            this.touchData.current.time = new Date().getTime();
+            let _this = this
+            _this.isInner = false;
+            e.path.forEach(element => {
+                if(element.className === 'yd-scroll-container') {
+                    _this.isInner = true;
+                }
+            });
+            if(!_this.isInner) return;
+            if (e.target) e.target.addEventListener('touchmove', _this.touchMove);
+            document.addEventListener('mousemove', _this.touchMove);
 
-            this.stop();
+            let clientY = _this.isTouch(e) ? e.touches[0].clientY : e.clientY;
+            _this.startScroll(clientY)
+            _this.stop();
         },
 		touchMove(e) {
             e.preventDefault();
             this.touchData.last.pos = this.touchData.current.pos;
             this.touchData.last.time = this.touchData.current.time;
 
-            this.touchData.current.pos = e.touches[0].clientY || e.clientY;
+            this.touchData.current.pos = this.isTouch(e) ? e.touches[0].clientY : e.clientY;
             this.touchData.current.time = new Date().getTime();
-            const moveLength = (this.touchData.last.pos - this.touchData.current.pos);
+            const moveLength = (this.touchData.last.pos - this.touchData.current.pos) * 1.25;
             if(moveLength === 0) return;
             let scrollTop = this.scrollTop;
             scrollTop += moveLength;
             this.doScroll(scrollTop);
 		},
         touchEnd(e) {
+            if (e.target) e.target.removeEventListener('touchmove', this.touchMove);
+            document.removeEventListener('mousemove', this.touchMove);
+
+            if(!this.isInner) return;
             this.endScroll();
+        },
+        startScroll(posY) {
+            this.touchData.current.pos = posY;
+            this.touchData.current.time = new Date().getTime();
+            this.stop();
         },
         doScroll(scrollTop) {
             this.setRotate(scrollTop);
         },
         endScroll() {
             let time = Math.abs(this.velocity / this.acceleration);
-            let totalScrollLen = this.velocity * time + this.acceleration * time * time / 2;
+            if(time === 0) return;
+            let totalScrollLen = this.velocity * time + this.velocity / Math.abs(this.velocity) * this.acceleration * time * time / 2;
             totalScrollLen = totalScrollLen * 3;
             let finalScroll = this.scrollTop - totalScrollLen;
             this.anmiateScroll(finalScroll, time);
@@ -152,7 +194,7 @@ export default {
         anmiateScroll(finalScroll, time) {
             for(let i = 0; i <= this.dataList.length; i++) {
                 const offset = Math.abs(finalScroll - i * this.itemHeight);
-                if(offset < this.itemHeight) {
+                if(offset < this.itemHeight * 0.5) {
                     finalScroll = i * this.itemHeight
                 }
             }
@@ -193,7 +235,9 @@ export default {
                     rotate = L / (this.scrollHeight - this.itemHeight)  * 180;
                     itemData.rotate = rotate;
                     itemData.position = L;
-                    itemData.visible = true;
+                    if(Math.abs(rotate) < 70) {
+                        itemData.visible = true;
+                    }
                 }
                 this.itemDatas[index] = itemData;
             }
@@ -213,13 +257,16 @@ export default {
         },
         easing(pos) {
             return -(Math.pow((pos - 1), 4) - 1);
+        },
+        isTouch(e) {
+            return ['touchstart', 'touchmove', 'touchend'].includes(e.type);
         }
     },
 };
 </script>
 
 <style scoped>
-.scroll-container {
+.yd-scroll-container {
     overflow-y: scroll;
     overflow-x: hidden;
     position: relative;
@@ -229,18 +276,18 @@ export default {
 ::-webkit-scrollbar {
     display: none;  /* Chrome Safari */
 }
-.item {
+.yd-item {
     display: flex;
     align-items: center;
     justify-content: center;
     backface-visibility: hidden;
     position: absolute;
     left: 0;
+    cursor: pointer;
 }
-.middle-line {
+.yd-middle-line {
     position: absolute;
     width: 100%;
-    top: 50%;
     border: 1px solid slateblue;
     z-index: 10000;
 }

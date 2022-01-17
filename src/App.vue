@@ -4,7 +4,8 @@
         <h1 class="gradient-text" data-v-fb6d3afe>
             111111111111111111111111111111111111111
         </h1>
-        <sphere-scroll :dataList="dataList">
+        <p>{{selectValue}}</p>
+        <sphere-scroll :dataList="dataList" @selectChange="onSelectChange">
             <template v-slot:item="{ item }">
                 <div class="ListItem">
                     <img
@@ -31,6 +32,7 @@ export default {
     data: function () {
         return {
             dataList: [],
+            selectValue: 0,
         };
     },
     created: function () {
@@ -38,6 +40,11 @@ export default {
             this.dataList.push({ name: index });
         }
     },
+    methods: {
+        onSelectChange(index) {
+            this.selectValue = this.dataList[index].name;
+        }
+    }
 };
 </script>
 
