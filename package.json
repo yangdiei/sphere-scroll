@@ -1,11 +1,24 @@
 {
-	"name": "infinite-scroll",
-	"version": "0.1.0",
-	"private": true,
+	"name": "sphere-scroll",
+	"version": "0.1.1",
+	"private": false,
+	"description": "ui-components",
+	"main": "lib/sphereScroll.umd.js",
+	"module": "lib/sphereScroll.esm.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/yangdiei/sphere-scroll.git"
+	},
+	"homepage": "https://github.com/yangdiei/sphere-scroll#readme",
+	"bugs": {
+		"url": "https://github.com/yangdiei/sphere-scroll/issues"
+	},
 	"scripts": {
 		"serve": "vue-cli-service serve",
 		"build": "vue-cli-service build",
-		"lint": "vue-cli-service lint"
+		"lint": "vue-cli-service lint",
+		"lib": "vue-cli-service build --target lib --name sphereScroll --dest lib ./packages/index.js",
+		"prepublish": "npm run lib"
 	},
 	"dependencies": {
 		"core-js": "^3.6.5",
@@ -33,6 +46,14 @@
 		},
 		"rules": {}
 	},
+	"keywords": [
+		"ui-components",
+		"picker",
+		"vue",
+		"javascript"
+	],
+	"author": "yangdie (https://github.com/yangdiei)",
+	"license": "MIT",
 	"browserslist": [
 		"> 1%",
 		"last 2 versions",
