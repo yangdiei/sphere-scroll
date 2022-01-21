@@ -1,6 +1,6 @@
 {
 	"name": "sphere-scroll",
-	"version": "0.1.1",
+	"version": "1.0.0",
 	"private": false,
 	"description": "ui-components",
 	"main": "lib/sphereScroll.umd.js",

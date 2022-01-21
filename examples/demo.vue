@@ -11,8 +11,8 @@
       ref="sphereScroll"
     >
       <template v-slot:item="{ item }">
-        <div class="ListItem">
-          {{ item.name }}
+        <div class="listItem">
+          {{ item }}
         </div>
       </template>
     </sphere-scroll>
@@ -35,7 +35,7 @@ export default {
   },
   created: function () {
     for (let index = 0; index < 50; index++) {
-      this.dataList.push({ name: index });
+      this.dataList.push(index);
     }
   },
   mounted: function () {
@@ -64,7 +64,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
 }
-.ListItem {
+.listItem {
   font-size: 24px;
   width: 100%;
   height: 100%;

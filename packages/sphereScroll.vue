@@ -27,7 +27,10 @@
           transform: `rotateX(${itemDatas[index] ? itemDatas[index].rotate : 0}deg) translate3d(0, ${itemOffsetY(index)}px, ${itemOffsetZ(index)}px)`,
         }"
       >
-        <slot name="item" v-bind:item="item"> </slot>
+        <div v-if="!$scopedSlots.item" class="yd-item-content">
+          {{ item }}
+        </div>
+        <slot v-else name="item" v-bind:item="item"></slot>
       </div>
     </div>
     <div class="yd-bottom-mask yd-mask" :style="{height: (viewHeight - scrollItemHeight - 1) / 2 + 'px', bottom: 0}"></div>
@@ -125,6 +128,7 @@ export default {
     this.$emit('selectChange', this.middleIndex);
   },
   mounted: function () {
+    console.log(this.$scopedSlots);
     document.addEventListener('mousedown', this.touchStart, this.passiveSupported ? {passive: false} : false);
     document.addEventListener('mouseup', this.touchEnd, this.passiveSupported ? {passive: false} : false);
   },
@@ -188,11 +192,11 @@ export default {
     },
     //通过offset滑动，停止滑动后复位到选中的item
     anmiateScroll(finalScroll, time) {
-      for(let i = 0; i <= this.dataList.length; i++) {
-          const offset = Math.abs(finalScroll - i * this.scrollItemHeight);
-          if(offset < this.scrollItemHeight * 0.5) {
-            finalScroll = i * this.scrollItemHeight
-          }
+      for(let i = - Math.floor(this.itemNum / 2); i <= this.dataList.length; i++) {
+        const offset = Math.abs(finalScroll - i * this.scrollItemHeight);
+        if(offset < this.scrollItemHeight * 0.5) {
+          finalScroll = i * this.scrollItemHeight
+        }
       }
       const startTime = new Date().getTime() / 1000;
       const startPos = this.scrollTop;
@@ -232,7 +236,7 @@ export default {
             itemData.rotate = rotate;
             itemData.position = L;
             if(Math.abs(rotate) < 90) {
-                itemData.visible = true;
+              itemData.visible = true;
             }
           }
           this.itemDatas[index] = itemData;
@@ -289,6 +293,14 @@ export default {
   cursor: pointer;
   z-index: 999;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+.yd-item-content {
+  font-size: 24px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .yd-mask {
   position: absolute;

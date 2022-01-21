@@ -20,7 +20,7 @@ import SphereScroll from "sphere-scroll";
   :viewWidth="300"
 >
 ```
-### You can see [demo](https://github.com/adavie1) for more information.
+### You can see [demo](https://github.com/yangdiei/sphere-scroll/blob/dev/examples/demo.vue) for more information.
 
 ## Porps
 |  porps   | description  | Type | Default |
@@ -39,3 +39,13 @@ import SphereScroll from "sphere-scroll";
 | Method |	Description |	Parameters |
 |  ----  | ----         | ----       |
 | setSeclectIndex  | set selection | selcetion index|
+
+## Slots
+You also can use __slot__ to apply custom content for list item. 
+```HTML
+<template v-slot:item="{ item }">
+  <div class="listItem">
+    {{ item }}
+  </div>
+</template>
+``` 
