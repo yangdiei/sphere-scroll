@@ -43,7 +43,7 @@ export default {
   },
   methods: {
     onSelectChange(index) {
-      this.selectValue = this.dataList[index].name;
+      this.selectValue = this.dataList[index];
     }
   }
 };

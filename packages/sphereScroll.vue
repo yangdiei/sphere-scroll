@@ -137,7 +137,7 @@ export default {
       e.preventDefault();
       let _this = this
       _this.isInner = false;
-      e.path.forEach(element => {
+      e.composedPath().forEach(element => {
           if(element.className === 'yd-root') {
               _this.isInner = true;
           }
